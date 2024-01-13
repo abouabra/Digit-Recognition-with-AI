@@ -1,3 +1,14 @@
+"""
+    Name:       play.py
+    Author:     Ayman Bouabra (abouabra)
+    Created:    2023-01-13
+
+    Purpose:    This program allows the user to draw a digit in the left box
+                and the program will predict the digit and display the prediction in the right box.
+                User can clear the drawing surface by clicking on the clear button.
+"""
+
+# import the necessary packages
 import pygame
 import numpy as np
 import os
@@ -45,7 +56,7 @@ class ImageClassifier(nn.Module):
         x = self.fc2(x)  # Final output layer
         return x
 
-
+# Load the model
 model_name = "MNIST_CUDA_MODEL.pt"
 model = ImageClassifier()
 model.load_state_dict(torch.load(model_name, map_location=torch.device('cpu')))
@@ -79,7 +90,7 @@ button_font = pygame.font.SysFont(None, 50)
 button_text = button_font.render("Clear", True, (0, 0, 0))
 button_text_rect = button_text.get_rect(center=button_rect.center)
 
-
+# Create the text for the prediction 
 prediction_font = pygame.font.SysFont(None, 30)
 prediction_text = []
 prediction_text_rect = []
@@ -95,38 +106,39 @@ def clear_box():
     for i in range(10):
         prediction_text[i] = prediction_font.render(f"{i}: 0%", True, (0, 0, 0))
 
+# Function to calculate softmax
 def softmax(x):
     return np.exp(x) / np.sum(np.exp(x), axis=0)
 
 
 def evaluate():
-
     try:
         # Load and preprocess image
         img = cv2.imread("box_image.png", cv2.IMREAD_GRAYSCALE)
+        # Resize image to 28x28
         img = cv2.resize(img, (28, 28))
+        # convert to tensor 
         img = torch.from_numpy(img)
+        # Add batch dimension and normalize
         img = img.unsqueeze(0).unsqueeze(0).float() / 255.0  # Combine steps for clarity
-
         # Set model to evaluation mode
         model.eval()
-    
+
         global prediction_text
         # Pass image through model
         with torch.no_grad():
             output = model(img)
-            # print("Prediction probabilities:")
+            # Get prediction
             probabilities = softmax(output.numpy()[0])
             for i, probability in enumerate(probabilities):
+                # round the probability to 2 decimal places
                 accuracy = round(probability * 100, 2)
-                # print(f"{i}: {accuracy}%")
                 prediction_text[i] = prediction_font.render(f"{i}: {accuracy}%", True, (0, 0, 0))
             # set the highest probability to green
             prediction_text[np.argmax(probabilities)] = prediction_font.render(f"{np.argmax(probabilities)}: {round(np.max(probabilities) * 100, 2)}%", True, (0, 255, 0))
         os.remove("box_image.png")  # Delete the image file
     except Exception as e:
         print("Error occurred:", e)  # Catch and print any errors
-
 
 # Function to capture an image of the left box
 def capture_box_image():
@@ -143,28 +155,35 @@ running = True
 drawing = False
 mouse_down_pos = None
 while running:
+    # Event handling
     for event in pygame.event.get():
+        # Quit the program if the user closes the window
         if event.type == pygame.QUIT:
             running = False
+        # Quit the program if the user presses escape
         if event.type == pygame.KEYUP and event.key == pygame.K_ESCAPE:
             running = False
+        # Handle mouse events
         elif event.type == pygame.MOUSEBUTTONDOWN:
+            # Check if the user clicked on the drawing surface
             if box_rect.collidepoint(event.pos):
                 drawing = True
                 mouse_down_pos = event.pos
+            # Check if the user clicked on the clear button
             elif button_rect.collidepoint(event.pos):
                 clear_box()
+        # Handle mouse motion while the user is clicking and dragging
         elif event.type == pygame.MOUSEMOTION and drawing:
             mouse_pos = event.pos
-            # pygame.draw.line(box, (0, 0, 0), mouse_down_pos, mouse_pos, 60)
             pygame.draw.circle(box, (255, 255, 255), mouse_pos, 30)
             mouse_down_pos = mouse_pos
-       
+        # Handle mouse button release
         elif event.type == pygame.MOUSEBUTTONUP and drawing:
             drawing = False
             capture_box_image()
             evaluate()
-
+    
+    # Draw everything
     screen.fill(background_color)
     screen.blit(box, box_rect)
     screen.blit(button, button_rect)
