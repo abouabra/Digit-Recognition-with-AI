@@ -9,6 +9,11 @@ This repository contains a PyTorch-based model for handwritten digit recognition
     MNIST_TRAIN.ipynb    : the notebook used to train the model.
     MNIST_CUDA_MODEL.pt  : the trained model.
     play.py              : Pygame application for drawing digits and obtaining predictions.
+# Model Architecture
+
+## Convolutional Neural Network
+![CNN Model](Assets/Lenet-Full.jpg)
+
 ## Model Summary
 ```
  ------------------------------------------------------------------------------------------  
@@ -35,4 +40,10 @@ This repository contains a PyTorch-based model for handwritten digit recognition
 |  Estimated Total Size (MB): 27.98                                                        |
  ------------------------------------------------------------------------------------------  
 ```
-![CNN Model](Assets/Lenet-Full.jpg)
+
+## Model Training
+![Training_vs_loss_epochs_pink_and_blue](Assets/Training_vs_loss_epochs_pink_and_blue.png)
+
+## Model TSNE Visualization
+
+![CNN Model](Assets/Training_vs_loss_epochs_pink_and_blue.png)
