@@ -47,3 +47,11 @@ This repository contains a PyTorch-based model for handwritten digit recognition
 ## Model TSNE Visualization
 
 ![CNN Model](Assets/Training_vs_loss_epochs_pink_and_blue.png)
+
+
+## Example Predictions
+
+
+![CNN Model](Assets/example_3.png)
+![CNN Model](Assets/example_4.png)
+![CNN Model](Assets/example_8.png)
